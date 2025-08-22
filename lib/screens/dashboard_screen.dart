@@ -172,28 +172,40 @@ class _DashboardScreenState extends State<DashboardScreen> {
         actions: [
           IconButton(
             icon: Image.asset("assets/news.png", height: 28), // new logo
-            onPressed: () {},
+            onPressed: () {
+              Navigator.pushNamed(context, '/newsScreen');
+
+            },
           ),
           IconButton(
             icon: const Icon(Icons.notifications),
-            onPressed: () {},
+            onPressed: () {
+              Navigator.pushNamed(context, '/notificationScreen');
+
+            },
           ),
         ],
       ),
       body: Column(children: [
-        Container(
-          color: Colors.black,
-          height: 30,
-          width: double.infinity,
-          child: Marquee(
-            text: "Breaking News: Flutter Drawer + AppBar + Marquee Example Running Successfully 🚀",
-            style:  TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-            scrollAxis: Axis.horizontal,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            blankSpace: 50.0,
-            velocity: 50.0,
-            pauseAfterRound: const Duration(seconds: 3),
-            startPadding: 20.0,
+        InkWell(
+          onTap: (){
+            Navigator.pushNamed(context, '/newsScreen');
+
+          },
+          child: Container(
+            color: Colors.black,
+            height: 30,
+            width: double.infinity,
+            child: Marquee(
+              text: "Breaking News: Flutter Drawer + AppBar + Marquee Example Running Successfully 🚀",
+              style:  TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+              scrollAxis: Axis.horizontal,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              blankSpace: 50.0,
+              velocity: 50.0,
+              pauseAfterRound: const Duration(seconds: 3),
+              startPadding: 20.0,
+            ),
           ),
         ),
 
@@ -302,7 +314,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   : Column(
                 children: [
                   // Search Field
-                  TextField(
+                  /*TextField(
 
                     onChanged: _filterItems,
                     decoration: InputDecoration(
@@ -314,10 +326,30 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         borderRadius: BorderRadius.circular(30),
                         borderSide: BorderSide.none,
                       ),
-                     /* border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12)),*/
+                     *//* border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12)),*//*
                     ),
+                  ),*/
+
+                  TextField(
+                    onChanged: _filterItems,
+                    decoration: InputDecoration(
+                      filled: true,
+                      fillColor: Colors.grey[200],
+                      hintText: 'Search...',
+                      prefixIcon: const Icon(Icons.search),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(30),
+                        borderSide: BorderSide.none,
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        vertical: 8,  // 👈 vertical padding कम करो
+                        horizontal: 16,
+                      ),
+                    ),
+                    style: const TextStyle(fontSize: 14), // font भी छोटा कर सकते हो
                   ),
+
                   const SizedBox(height: 12),
 
                   // Swipe to Refresh + List

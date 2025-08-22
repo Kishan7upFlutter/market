@@ -109,11 +109,17 @@ class _PriceBottomSheetState extends State<PriceBottomSheet> {
         actions: [
           IconButton(
             icon: Image.asset("assets/news.png", height: 28), // new logo
-            onPressed: () {},
+            onPressed: () {
+              Navigator.pushNamed(context, '/newsScreen');
+
+            },
           ),
           IconButton(
             icon: const Icon(Icons.notifications),
-            onPressed: () {},
+            onPressed: () {
+              Navigator.pushNamed(context, '/notificationScreen');
+
+            },
           ),
         ],
       ),
