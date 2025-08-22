@@ -14,4 +14,10 @@ class Validators {
     if (v == null || v.isEmpty) return 'Required';
     return null;
   }
+
+  static String? maxdigit(String? v) {
+    if (v == null || v.isEmpty) return 'Mobile No. is Required';
+    if (v.length < 10) return 'Invalid Mobile No.';
+    return null;
+  }
 }

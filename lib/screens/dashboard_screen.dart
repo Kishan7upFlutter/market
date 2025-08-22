@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
+import 'package:marquee/marquee.dart';
 import 'package:provider/provider.dart';
 import '../providers/dashboard_provider.dart';
 import '../providers/auth_provider.dart';
@@ -90,39 +93,147 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Scaffold(
       backgroundColor: Colors.yellow[600],
       key: _scaffoldKey,
+      drawer: Drawer(
+        backgroundColor: Colors.yellow[600],
+        child: ListView(
+          children: [
+             DrawerHeader(
+              decoration: BoxDecoration(color:  Colors.yellow[600]),
+              child: Center(
+                child: Column(
+                  children: [
+                    Image.asset(
+                      "assets/logo.png", // ← yaha apna logo rakho
+                      height: 60,
+                    ),
+                    SizedBox(height: 10.h,),
+                    Text(
+                      "મહાદેવ",
+                      style: TextStyle(color: Colors.black, fontSize: 20,fontWeight: FontWeight.bold),
+                    ),
+                    Text(
+                      "(નરેશભાઈ)",
+                      style: TextStyle(color: Colors.black, fontSize: 15),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.message_rounded),
+              title: const Text("વોટ્સએપમાં ભાવ જોવા માટે"),
+              onTap: () {},
+            ),
+            ListTile(
+              leading: const Icon(Icons.picture_as_pdf),
+              title: const Text("PDF"),
+              onTap: () {},
+            ),
+
+            ListTile(
+              leading: const Icon(Icons.branding_watermark),
+              title: const Text("અમારી શાખાઓ"),
+              onTap: () {},
+            ),
+            ListTile(
+              leading: const Icon(Icons.maps_home_work_outlined),
+              title: const Text("બેંકની માહિતી"),
+              onTap: () {},
+            ),
+            ListTile(
+              leading: const Icon(Icons.call),
+              title: const Text("સંપર્ક"),
+              onTap: () {},
+            ),
+            ListTile(
+              leading: const Icon(Icons.exit_to_app),
+              title: const Text("બહાર નીકળો"),
+              onTap: () {
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        ),
+      ),
+
+      appBar: AppBar(
+        backgroundColor: Colors.yellow[600],
+        titleSpacing: 0,
+        title: Row(
+          children: [
+            Image.asset(
+              "assets/logo.png", // ← yaha apna logo rakho
+              height: 30,
+            ),
+            const SizedBox(width: 8),
+            const Text("મહાદેવ", style: TextStyle(color: Colors.black, fontSize: 20,fontWeight: FontWeight.bold),),
+          ],
+        ),
+        actions: [
+          IconButton(
+            icon: Image.asset("assets/news.png", height: 28), // new logo
+            onPressed: () {},
+          ),
+          IconButton(
+            icon: const Icon(Icons.notifications),
+            onPressed: () {},
+          ),
+        ],
+      ),
       body: Column(children: [
         Container(
-          height: topHeight,
+          color: Colors.black,
+          height: 30,
+          width: double.infinity,
+          child: Marquee(
+            text: "Breaking News: Flutter Drawer + AppBar + Marquee Example Running Successfully 🚀",
+            style:  TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+            scrollAxis: Axis.horizontal,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            blankSpace: 50.0,
+            velocity: 50.0,
+            pauseAfterRound: const Duration(seconds: 3),
+            startPadding: 20.0,
+          ),
+        ),
+
+        /* Container(
+          //height: topHeight,
           margin: const EdgeInsets.symmetric(horizontal: 12),
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
               color: Colors.yellow[600], borderRadius: BorderRadius.circular(12)),
           child: Row(children: [
             const CircleAvatar(
-                radius: 36, backgroundImage: AssetImage('assets/profile.png')),
+                radius: 32, backgroundImage: AssetImage('assets/logo.png')),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(userName,
+                    Text("MAHADEV",
                         style: const TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 25)),
+                            fontWeight: FontWeight.bold, fontSize: 28)),
 
                   ]),
             ),
             const SizedBox(width: 10),
+
+            const CircleAvatar(
+                radius: 24, backgroundImage: AssetImage('assets/news.png')),
+
+            const SizedBox(width: 10),
             IconButton(
-                onPressed: () {}, icon: const Icon(Icons.notifications_none,size: 25,)),
+                onPressed: () {}, icon: const Icon(Icons.notifications_none,size: 42,)),
           ]),
-        ),
+        ),*/
        // const SizedBox(height: 12),
 
-        Container(
+       /* Container(
 
 
-          margin: EdgeInsets.symmetric(horizontal: 10),
+          margin: EdgeInsets.symmetric(horizontal: 15),
           decoration: BoxDecoration(
 
             //border: Border.all(color: Colors.black),
@@ -143,7 +254,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     border: Border.all(color: Colors.black)
 
                 ),
-                child: Center(child: Text("News",style: TextStyle(color: Colors.white),)),
+                child: Center(child: Text("News",style: TextStyle(color: Color(0xFFFFBB00)),)),
 
               ),
 
@@ -163,7 +274,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   alignment: Alignment.centerLeft, // vertical center + left align
                   //margin: EdgeInsets.only(left: 5),
                   child: Text(
-                    "Live News , Live News , Live News",
+                    "News...Live...News...Live...News...live...",
+
                     style: TextStyle(color: Colors.black),
                   ),
                 ),
@@ -171,7 +283,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
             ],
           ),
-        ),
+        ),*/
         // White rounded container
         const SizedBox(height: 12),
 
@@ -209,7 +321,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   const SizedBox(height: 12),
 
                   // Swipe to Refresh + List
-                  Expanded(
+                  /*Expanded(
                     child: RefreshIndicator(
                       onRefresh: _refreshDashboard,
                       child: ListView.builder(
@@ -221,6 +333,31 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           final left = filteredItems[leftIdx];
                           final right =
                           rightIdx < filteredItems.length ? filteredItems[rightIdx] : null;
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 12),
+                            child: TwoCardItem(left: left, right: right),
+                          );
+                        },
+                      ),
+                    ),
+                  ),*/
+                  Expanded(
+                    child:
+                    LiquidPullToRefresh(
+                      onRefresh: _refreshDashboard, // वही function use होगा
+                      color: Colors.yellow[600],     // liquid का color
+                      backgroundColor: Colors.white, // loader का background
+                      height: 120,                   // liquid की ऊँचाई
+                      animSpeedFactor: 2,            // animation की speed
+                      showChildOpacityTransition: true, // smooth effect
+                      child: ListView.builder(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        itemCount: (filteredItems.length / 2).ceil(),
+                        itemBuilder: (c, i) {
+                          final leftIdx = i * 2;
+                          final rightIdx = leftIdx + 1;
+                          final left = filteredItems[leftIdx];
+                          final right = rightIdx < filteredItems.length ? filteredItems[rightIdx] : null;
                           return Padding(
                             padding: const EdgeInsets.only(bottom: 12),
                             child: TwoCardItem(left: left, right: right),

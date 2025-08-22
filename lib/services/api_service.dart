@@ -17,16 +17,16 @@ class ApiService {
   }
 
   // Login
-  static Future<Map<String, dynamic>> login(String email, String pass) async {
+  static Future<Map<String, dynamic>> login(String mobileNo) async {
     await Future.delayed(const Duration(seconds: 1));
-    if (email == "test@demo.com" && pass == "123456") {
+    if (mobileNo == "0123456789") {
       return {
         "success": true,
-        "user": {"id": "u123", "name": "Kishan", "email": email},
+        "user": {"id": "u123", "name": "test-user", "email": "testuser@gmail.com"},
         "token": "dummy_token_abc123"
       };
     }
-    return {"success": false, "message": "Invalid credentials"};
+    return {"success": false, "message": "User Not Found"};
   }
 
   // Signup
@@ -86,7 +86,7 @@ class ApiService {
       "items": List.generate(
         12,
             (i) => {
-          "title": "Item ${i + 1}",
+          "title": "Category ${i + 1}",
           "subtitle": "Description ${i + 1}",
           "value": (i + 1) * 10
         },

@@ -1,4 +1,4 @@
-package com.mahadev.market
+package com.example.market
 
 //import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.android.FlutterFragmentActivity
