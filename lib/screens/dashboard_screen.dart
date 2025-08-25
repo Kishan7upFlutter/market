@@ -159,15 +159,24 @@ class _DashboardScreenState extends State<DashboardScreen> {
       appBar: AppBar(
         backgroundColor: Colors.yellow[600],
         titleSpacing: 0,
-        title: Row(
-          children: [
-            Image.asset(
-              "assets/logo.png", // ← yaha apna logo rakho
-              height: 30,
-            ),
-            const SizedBox(width: 8),
-            const Text("મહાદેવ", style: TextStyle(color: Colors.black, fontSize: 20,fontWeight: FontWeight.bold),),
-          ],
+        title: Container(
+          margin: EdgeInsets.only(left: 10.w),
+          child: Row(
+            children: [
+              Image.asset(
+                "assets/logo.png", // ← yaha apna logo rakho
+                height: 42.h,
+              ),
+              const SizedBox(width: 8),
+              Column(
+                children: [
+                  const Text("મહાદેવ", style: TextStyle(color: Colors.black, fontSize: 18,fontWeight: FontWeight.bold),),
+                  const Text("(નરેશભાઈ)", style: TextStyle(color: Colors.black, fontSize: 15,fontWeight: FontWeight.bold),),
+
+                ],
+              ),
+            ],
+          ),
         ),
         actions: [
           IconButton(
@@ -187,25 +196,28 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ],
       ),
       body: Column(children: [
-        InkWell(
-          onTap: (){
-            Navigator.pushNamed(context, '/newsScreen');
-
-          },
-          child: Container(
-            color: Colors.black,
-            height: 30,
-            width: double.infinity,
-            child: Marquee(
-              text: "Breaking News: Flutter Drawer + AppBar + Marquee Example Running Successfully 🚀",
-              style:  TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-              scrollAxis: Axis.horizontal,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              blankSpace: 50.0,
-              velocity: 50.0,
-              pauseAfterRound: const Duration(seconds: 3),
-              startPadding: 20.0,
-            ),
+        Container(
+          color: Colors.black,
+          height: 30,
+          width: double.infinity,
+          child: Row(
+            children: [
+              SizedBox(width: 10.w,),
+              Text("સમાચાર :",style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.sp)),
+              SizedBox(width: 10.w,),
+              Expanded(
+                child: Marquee(
+                  text: "Breaking News: Flutter Drawer + AppBar + Marquee Example Running Successfully 🚀",
+                  style:  TextStyle(color: Colors.white, fontWeight: FontWeight.bold,fontSize: 12.sp),
+                  scrollAxis: Axis.horizontal,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  blankSpace: 50.0,
+                  velocity: 50.0,
+                  pauseAfterRound: const Duration(seconds: 3),
+                  startPadding: 20.0,
+                ),
+              ),
+            ],
           ),
         ),
 
@@ -331,7 +343,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ),
                   ),*/
 
-                  TextField(
+                  /*TextField(
                     onChanged: _filterItems,
                     decoration: InputDecoration(
                       filled: true,
@@ -339,17 +351,39 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       hintText: 'Search...',
                       prefixIcon: const Icon(Icons.search),
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30),
+                        borderRadius: BorderRadius.circular(20),
                         borderSide: BorderSide.none,
                       ),
+                      isDense: true, // 👈 ye lagane se TextField compact ho jata hai
                       contentPadding: const EdgeInsets.symmetric(
                         vertical: 8,  // 👈 vertical padding कम करो
                         horizontal: 16,
                       ),
                     ),
-                    style: const TextStyle(fontSize: 14), // font भी छोटा कर सकते हो
-                  ),
+                    style: const TextStyle(fontSize: 16), // font भी छोटा कर सकते हो
+                  ),*/
 
+
+                  Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey),
+                      borderRadius: BorderRadius.all(Radius.circular(30.r))
+                    ),
+                    height: 40, // 👈 jitni height chahiye
+                    child: TextField(
+                      onChanged: _filterItems,
+                      decoration: InputDecoration(
+                        hintText: "Search...",
+                        prefixIcon: const Icon(Icons.search, size: 18),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(20),
+                          borderSide: BorderSide.none,
+                        ),
+                        isDense: true,
+                      ),
+                      style: const TextStyle(fontSize: 14),
+                    ),
+                  ),
                   const SizedBox(height: 12),
 
                   // Swipe to Refresh + List
@@ -373,7 +407,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       ),
                     ),
                   ),*/
-                  Expanded(
+                  filteredItems.isNotEmpty? Expanded(
                     child:
                     LiquidPullToRefresh(
                       onRefresh: _refreshDashboard, // वही function use होगा
@@ -397,7 +431,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         },
                       ),
                     ),
-                  ),
+                  ):Center(child: Text("ડેટા નથી....",style: TextStyle(fontSize: 18.sp,fontWeight: FontWeight.bold,color: Colors.grey),),),
+
                 ],
               ),
             ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:market/services/fcm_notification_service.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../providers/splash_provider.dart';
@@ -23,11 +24,20 @@ class _SplashScreenState extends State<SplashScreen>
   late AnimationController _controller;
   late Animation<double> _fadeAnim;
   late Animation<double> _scaleAnim;
+  String _token = "Loading...";
 
   @override
   void initState() {
     super.initState();
+    PushNotificationService.initNotifications(context);
+    // Token ko UI me dikhane ke liye
+    PushNotificationService.getToken().then((value) {
+      setState(() {
+        _token = value ?? "Token not found";
+      });
 
+      print("FCMToken" + " Token : " + value.toString());
+    });
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 2),

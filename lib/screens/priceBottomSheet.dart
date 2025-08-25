@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:marquee/marquee.dart';
 
 
 class PriceBottomSheet extends StatefulWidget {
@@ -96,15 +97,26 @@ class _PriceBottomSheetState extends State<PriceBottomSheet> {
       appBar: AppBar(
         backgroundColor: Colors.yellow[600],
         titleSpacing: 0,
-        title: Row(
-          children: [
-            Image.asset(
-              "assets/logo.png", // ← yaha apna logo rakho
-              height: 30,
-            ),
-            const SizedBox(width: 8),
-            const Text("મહાદેવ", style: TextStyle(color: Colors.black, fontSize: 20,fontWeight: FontWeight.bold),),
-          ],
+        title: InkWell(
+          onTap: (){
+            Navigator.pushReplacementNamed(context, '/dashboard');
+          },
+          child: Row(
+            children: [
+              Image.asset(
+                "assets/logo.png", // ← yaha apna logo rakho
+                height: 42.h,
+              ),
+              const SizedBox(width: 8),
+              Column(
+                children: [
+                  const Text("મહાદેવ", style: TextStyle(color: Colors.black, fontSize: 18,fontWeight: FontWeight.bold),),
+                  const Text("(નરેશભાઈ)", style: TextStyle(color: Colors.black, fontSize: 15,fontWeight: FontWeight.bold),),
+
+                ],
+              ),
+            ],
+          ),
         ),
         actions: [
           IconButton(
@@ -123,13 +135,99 @@ class _PriceBottomSheetState extends State<PriceBottomSheet> {
           ),
         ],
       ),
-      body: Column(
+      body:
+      SingleChildScrollView(
+        scrollDirection: Axis.vertical,
+        child: Column(
+          children: [
+
+            Container(
+              color: Colors.black,
+              height: 30,
+              width: double.infinity,
+              child: Row(
+                children: [
+                  SizedBox(width: 10.w,),
+                  Text("સમાચાર :",style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16.sp)),
+                  SizedBox(width: 10.w,),
+                  Expanded(
+                    child: Marquee(
+                      text: "Breaking News: Flutter Drawer + AppBar + Marquee Example Running Successfully 🚀",
+                      style:  TextStyle(color: Colors.white, fontWeight: FontWeight.bold,fontSize: 12.sp),
+                      scrollAxis: Axis.horizontal,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      blankSpace: 50.0,
+                      velocity: 50.0,
+                      pauseAfterRound: const Duration(seconds: 3),
+                      startPadding: 20.0,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            DataTable(
+              headingRowColor: WidgetStateProperty.all(Colors.grey),
+              columnSpacing: 20,
+              border: TableBorder.all(
+                color: Colors.black,
+                width: 1,
+              ), // 👈 हर cell पर border
+              columns: const [
+                DataColumn(
+                  label: Expanded(
+                    child: Center(
+                      child: Text(
+                        "વસ્તુ વિગત",
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16,color: Colors.white),
+                      ),
+                    ),
+                  ),
+                ),
+                DataColumn(
+                  label: Expanded(
+                    child: Center(
+                      child: Text(
+                        "રકમ (₹)",
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16,color: Colors.white),
+                      ),
+                    ),
+                  ),
+                  numeric: true,
+                ),
+              ],
+              rows: data.map((row) {
+                return DataRow(
+                  cells: [
+                    DataCell(
+                      Text(
+                        row["name"].toString(),
+                        style: const TextStyle(fontSize: 14),
+                      ),
+                    ),
+                    DataCell(
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: Text(
+                          row["price"].toString(),
+                          style: const TextStyle(
+                              fontSize: 14, fontWeight: FontWeight.w500),
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              }).toList(),
+            ),
+          ],
+        ),
+      ),
+
+    /*  Column(
         children: [
-          Align(alignment: Alignment.center,child: Text("ભાવ યાદી",style: TextStyle(color: Colors.black, fontSize: 20,fontWeight: FontWeight.bold)),),
           Container(
             color: Colors.black,
             padding: const EdgeInsets.all(8),
-            child: const Row(
+            child:  Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text("નામ",
@@ -175,7 +273,7 @@ class _PriceBottomSheetState extends State<PriceBottomSheet> {
             ),
           ),
         ],
-      ),
+      ),*/
     );
   }
 }
