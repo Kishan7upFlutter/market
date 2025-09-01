@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../services/api_service.dart';
+import 'package:market/services/api_service.dart';
 
 class SplashProvider extends ChangeNotifier {
   bool _loading = true;

@@ -1,7 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:market/services/api_service.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import '../services/api_service.dart';
 
 class DashboardProvider extends ChangeNotifier {
   bool _loading = false;

@@ -2,13 +2,15 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:market/presentation/providers/api_provider.dart';
+import 'package:market/presentation/providers/auth_provider.dart';
+import 'package:market/presentation/providers/dashboard_provider.dart';
+import 'package:market/presentation/providers/splash_provider.dart';
+import 'package:market/presentation/providers/theme_provider.dart';
 import 'package:provider/provider.dart';
 
 import 'routes.dart';
-import 'providers/theme_provider.dart';
-import 'providers/splash_provider.dart';
-import 'providers/auth_provider.dart';
-import 'providers/dashboard_provider.dart';
+
 
 /// Background & Kill State me notification handle karne ke liye
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -31,6 +33,7 @@ void main() async {
   runApp(
     MultiProvider(
       providers: [
+        ChangeNotifierProvider(create: (_) => ApiProvider()),
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
         ChangeNotifierProvider(create: (_) => SplashProvider()),
         ChangeNotifierProvider(create: (_) => AuthProvider()),

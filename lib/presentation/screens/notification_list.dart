@@ -3,15 +3,15 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:market/presentation/providers/api_provider.dart';
 import 'package:provider/provider.dart';
 
-class PdfListScreen extends StatefulWidget {
-  const PdfListScreen({super.key});
+class NotificationScreen extends StatefulWidget {
+  const NotificationScreen({super.key});
 
   @override
-  State<PdfListScreen> createState() => _PdfListScreenState();
+  State<NotificationScreen> createState() => _NotificationScreenState();
 }
 
-class _PdfListScreenState extends State<PdfListScreen> {
-  List<dynamic> pdfList = [];
+class _NotificationScreenState extends State<NotificationScreen> {
+  List<dynamic> notificationList = [];
   bool isLoading = false;
 
   @override
@@ -24,9 +24,9 @@ class _PdfListScreenState extends State<PdfListScreen> {
 
   Future<void> _initNotificationDetails() async {
     final apiprovider = context.read<ApiProvider>();
-    await apiprovider.getPdfList();
+    await apiprovider.getNotifications();
     setState(() {
-      pdfList = apiprovider.pdfList;
+      notificationList = apiprovider.notifications;
       isLoading = false;
     });
   }
@@ -41,16 +41,17 @@ class _PdfListScreenState extends State<PdfListScreen> {
         onRefresh: _initNotificationDetails,
         child: apiprovider.isLoading
             ? const Center(child: CircularProgressIndicator())
-            : pdfList.isEmpty
+            : notificationList.isEmpty
             ? const Center(child: Text("ડેટા નથી...."))
             : ListView.builder(
           physics: const AlwaysScrollableScrollPhysics(),
-          itemCount: pdfList.length,
+          itemCount: notificationList.length,
           itemBuilder: (context, index) {
-            final item = pdfList[index];
+            final item = notificationList[index];
 
-            return NotificationCard(
-              title: item["name"] ?? "",
+           return NotificationCard(
+              title: item["title"] ?? "",
+              message: item["description"] ?? "",
             );
             /*return Card(
               margin: const EdgeInsets.symmetric(
@@ -81,10 +82,10 @@ class _PdfListScreenState extends State<PdfListScreen> {
         ),
         backgroundColor: Colors.yellow[600],
       ),
+     
 
-
-
-
+     
+     
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(12),
         child: Column(
@@ -125,10 +126,12 @@ class _PdfListScreenState extends State<PdfListScreen> {
 
 class NotificationCard extends StatelessWidget {
   final String title;
+  final String message;
 
   const NotificationCard({
     super.key,
     required this.title,
+    required this.message,
   });
 
   @override
@@ -151,7 +154,14 @@ class NotificationCard extends StatelessWidget {
                 fontWeight: FontWeight.bold,
               ),
             ),
-
+            const SizedBox(height: 8),
+            Text(
+              message,
+              style:  TextStyle(
+                color: Colors.black,
+                fontSize: 15.sp,
+              ),
+            ),
           ],
         ),
       ),
