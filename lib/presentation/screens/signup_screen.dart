@@ -1,3 +1,4 @@
+import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:market/presentation/providers/api_provider.dart';
@@ -25,17 +26,31 @@ class _SignupScreenState extends State<SignupScreen> {
 
   List<Map<String, dynamic>> cities = [];
   List<Map<String, dynamic>> talukas = [];
-  List<Map<String, dynamic>> districts = [];
+  List<Map<String, dynamic>> jilla = [];
+  List<Map<String, dynamic>> state = [];
+
+/*  Map<String, dynamic>? selectedState;
+  Map<String, dynamic>? selectedDistrict;
+  Map<String, dynamic>? selectedSubDistrict;
+  Map<String, dynamic>? selectedCity;*/
+
 
   String? selectedCityId;
   String? selectedTalukaId;
-  String? selectedDistrictId;
+  String? selectedJillaId;
+  String? selectedStateId;
+
   bool enableBiometric = false;
 
   @override
   void initState() {
     super.initState();
-    _loadLocations();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<ApiProvider>().getStates();
+    });
+   // Provider.of<ApiProvider>(context, listen: false).getStates();
+
+    // _loadLocations();
   }
 
   Future<void> _loadLocations() async {
@@ -47,7 +62,7 @@ class _SignupScreenState extends State<SignupScreen> {
     }
   }
 
-  void onCityChange(String? cid) {
+ /* void onCityChange(String? cid) {
     setState(() {
       selectedCityId = cid;
       selectedTalukaId = null;
@@ -71,33 +86,62 @@ class _SignupScreenState extends State<SignupScreen> {
         districts = List<Map<String, dynamic>>.from((t['districts'] as List).map((e) => Map<String, dynamic>.from(e)));
       }
     });
-  }
+  }*/
 
   Future<void> _onRegister() async {
     if (!_form.currentState!.validate()) return;
-    if (selectedCityId == null || selectedTalukaId == null || selectedDistrictId == null) {
+   /* if (selectedCityId == null || selectedTalukaId == null || selectedDistrictId == null) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please select City/Taluka/Jilla')));
       return;
-    }
+    }*/
     final auth = context.read<ApiProvider>();
-    final map = {
-      /*"fullName": nameCtrl.text.trim(),
-      "mobileNo":mobileNoCtrl.text.trim(),
-      "address":addressCtrl.text.trim(),
-      "cityId": selectedCityId,
-      "talukaId": selectedTalukaId,
-      "districtId": selectedDistrictId,*/
 
-     /* "fcm_token":"fcm_token123",
-      "device_id":"device_id123",*/
+
+
+// 🔽 State
+    final state = auth.selectedState;
+    if (state != null && state.isNotEmpty) {
+      print("State ID: ${state['_id']}");
+      print("State Name: ${state['name']}");
+    }
+
+    // 🔽 District
+    final district = auth.selectedDistrict;
+    if (district != null && district.isNotEmpty) {
+      print("District ID: ${district['_id']}");
+      print("District Name: ${district['name']}");
+    }
+
+    // 🔽 Sub-District
+    final subDistrict = auth.selectedSubDistrict;
+    if (subDistrict != null && subDistrict.isNotEmpty) {
+      print("SubDistrict ID: ${subDistrict['_id']}");
+      print("SubDistrict Name: ${subDistrict['name']}");
+    }
+
+    // 🔽 City
+    final city = auth.selectedCity;
+    if (city != null && city.isNotEmpty) {
+      print("City ID: ${city['_id']}");
+      print("City Name: ${city['name']}");
+    }
+    String State = state==null? "": state['name'];
+    String Jilla = district==null? "": district['name'];
+    String taluka = subDistrict==null? "": subDistrict['name'];
+    String city_name = city==null? "": city['name'];
+
+
+
+    final map = {
+
       "shopName": shopCtrl.text.toString(),
       "contactNumber": mobileNoCtrl.text,
       "fullName": nameCtrl.text.toString(),
       "address": addressCtrl.text.toString(),
-      "taluka": selectedTalukaId.toString(),
-      "jilla": selectedDistrictId.toString(),
-      "city": selectedCityId.toString(),
-      "state": selectedDistrictId.toString()
+      "taluka": taluka,
+      "jilla": Jilla,
+      "city": city_name,
+      "state": State
     };
     final ok = await auth.registerUser(map, enableBiometric: enableBiometric);
     if (ok) {
@@ -119,7 +163,10 @@ class _SignupScreenState extends State<SignupScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final auth = context.watch<AuthProvider>();
+    final provider = Provider.of<ApiProvider>(context);
+    //final dropDownKey = GlobalKey<DropdownSearchState>();
+
+    //final auth = context.watch<AuthProvider>();
     return SafeArea(
       child: Scaffold(
         //appBar: AppBar(title: const Text('Sign Up')),
@@ -172,60 +219,298 @@ class _SignupScreenState extends State<SignupScreen> {
               AppTextField(label: 'Address', controller: addressCtrl),
               const SizedBox(height: 12),
 
-             /* Align(
-                alignment: Alignment.centerLeft,
-                child: Text("Select State",style: TextStyle(color: Colors.black,fontWeight: FontWeight.bold)),
+
+            /*  DropdownSearch<Map<String, dynamic>>(
+                key: GlobalKey<DropdownSearchState>(),
+                selectedItem: provider.selectedState,
+                items: (String? filter, infiniteScrollProps) {
+                  return provider.stateList;
+                },
+                itemAsString: (item) => item["name"] ?? "",
+                compareFn: (item, selected) => item["_id"] == selected["_id"], // 👈 important
+                decoratorProps: DropDownDecoratorProps(
+                  decoration: InputDecoration(
+                    labelText: "Select State",
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                popupProps: PopupProps.menu(
+                  showSearchBox: true,
+                  fit: FlexFit.loose,
+                  constraints: BoxConstraints(maxHeight: 300),
+                ),
+                onChanged: (value) {
+                  if (value != null) provider.setStateSelection(value);
+                },
               ),
-              const SizedBox(height: 5),
-              // city dropdown
-              DropdownButtonFormField<String>(
-                value: selectedCityId,
-                items: cities.map((c) => DropdownMenuItem(value: c['id'].toString(), child: Text(c['name'].toString()))).toList(),
-                onChanged: onCityChange,
-                decoration: const InputDecoration(labelText: 'City', border: OutlineInputBorder()),
-                validator: (v) => v == null ? 'Select City' : null,
+              const SizedBox(height: 12),
+
+              /// DISTRICT
+              DropdownSearch<Map<String, dynamic>>(
+                key: GlobalKey<DropdownSearchState>(),
+                selectedItem: provider.selectedDistrict,
+                items: (String? filter, infiniteScrollProps) {
+                  return provider.districtList;
+                },
+                itemAsString: (item) => item["name"] ?? "",
+                compareFn: (item, selected) => item["_id"] == selected["_id"], // 👈 important
+
+                decoratorProps: DropDownDecoratorProps(
+                  decoration: InputDecoration(
+                    labelText: "Select District",
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                popupProps: PopupProps.menu(
+                  showSearchBox: true,
+                  fit: FlexFit.loose,
+                  constraints: BoxConstraints(maxHeight: 300),
+                ),
+                onChanged: (value) {
+                  if (value != null) provider.setDistrictSelection(value);
+                },
               ),
-              const SizedBox(height: 12),*/
+              const SizedBox(height: 12),
+
+              /// SUB-DISTRICT
+              DropdownSearch<Map<String, dynamic>>(
+                key: GlobalKey<DropdownSearchState>(),
+                selectedItem: provider.selectedSubDistrict,
+                items: (String? filter, infiniteScrollProps) {
+                  return provider.subDistrictList;
+                },
+                itemAsString: (item) => item["name"] ?? "",
+                compareFn: (item, selected) => item["_id"] == selected["_id"], // 👈 important
+
+                decoratorProps: DropDownDecoratorProps(
+                  decoration: InputDecoration(
+                    labelText: "Select Sub-District",
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                popupProps: PopupProps.menu(
+                  showSearchBox: true,
+                  fit: FlexFit.loose,
+                  constraints: BoxConstraints(maxHeight: 300),
+                ),
+                onChanged: (value) {
+                  if (value != null) provider.setSubDistrictSelection(value);
+                },
+              ),
+              const SizedBox(height: 12),
+
+              /// CITY
+              DropdownSearch<Map<String, dynamic>>(
+                key: GlobalKey<DropdownSearchState>(),
+                selectedItem: provider.selectedCity,
+                items: (String? filter, infiniteScrollProps) {
+                  return provider.cityList;
+                },
+                itemAsString: (item) => item["name"] ?? "",
+                compareFn: (item, selected) => item["_id"] == selected["_id"], // 👈 important
+
+                decoratorProps: DropDownDecoratorProps(
+                  decoration: InputDecoration(
+                    labelText: "Select City",
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                popupProps: PopupProps.menu(
+                  showSearchBox: true,
+                  fit: FlexFit.loose,
+                  constraints: BoxConstraints(maxHeight: 300),
+                ),
+                onChanged: (value) {
+                  if (value != null) provider.setCitySelection(value);
+                },
+              ),
+*/
+
+
 
               Align(
                 alignment: Alignment.centerLeft,
-                child: Text("Select City",style: TextStyle(color: Colors.black,fontWeight: FontWeight.bold)),
+                child: Text("રાજ્ય",style: TextStyle(color: Colors.black,fontWeight: FontWeight.bold)),
               ),
               const SizedBox(height: 5),
-              // city dropdown
+              /// ---- STATE ----
               DropdownButtonFormField<String>(
-                value: selectedCityId,
-                items: cities.map((c) => DropdownMenuItem(value: c['id'].toString(), child: Text(c['name'].toString()))).toList(),
-                onChanged: onCityChange,
-                decoration: const InputDecoration(hintText: 'City', border: OutlineInputBorder()),
-                validator: (v) => v == null ? 'Select City' : null,
+                value: provider.selectedStateId,
+                items: provider.stateList
+                    .map<DropdownMenuItem<String>>(
+                      (c) => DropdownMenuItem(
+                    value: c['_id'], // ✅ sirf ID rakho
+                    child: Text(c['name']),
+                  ),
+                )
+                    .toList(),
+                onChanged: (v) {
+                  if (v != null) provider.setStateSelection(v);
+                  _form.currentState!.validate(); // 👈 yeh line important
+
+                },
+                decoration: const InputDecoration(
+                  hintText: 'State',
+                  border: OutlineInputBorder(),
+                ),
+                validator: (v) => v == null ? 'રાજ્ય સિલેક્ટ કરો' : null,
               ),
+
+
               const SizedBox(height: 12),
+
+              /// ---- DISTRICT ----
               Align(
                 alignment: Alignment.centerLeft,
-                child: Text("Select Taluka",style: TextStyle(color: Colors.black,fontWeight: FontWeight.bold)),
+                child: Text("જિલ્લા",style: TextStyle(color: Colors.black,fontWeight: FontWeight.bold)),
               ),
               const SizedBox(height: 5),
+
               DropdownButtonFormField<String>(
-                value: selectedTalukaId,
-                items: talukas.map((t) => DropdownMenuItem(value: t['id'].toString(), child: Text(t['name'].toString()))).toList(),
-                onChanged: onTalukaChange,
-                decoration: const InputDecoration(hintText: 'Taluka', border: OutlineInputBorder()),
-                validator: (v) => v == null ? 'Select Taluka' : null,
+                value: provider.selectedDistrictId,
+                items: provider.districtList
+                    .map<DropdownMenuItem<String>>(
+                      (c) => DropdownMenuItem(
+                    value: c['_id'], // ✅ sirf ID rakho
+                    child: Text(c['name']),
+                  ),
+                )
+                    .toList(),
+                onChanged: (v) {
+                  if (v != null) provider.setDistrictSelection(v);
+                  _form.currentState!.validate(); // 👈 yeh line important
+
+                },
+                decoration: const InputDecoration(
+                  hintText: 'જિલ્લા',
+                  border: OutlineInputBorder(),
+                ),
+                validator: (v) => v == null ? 'જિલ્લા સિલેક્ટ કરો' : null,
               ),
+
               const SizedBox(height: 12),
+
+              /// ---- SUBDISTRICT ----
               Align(
                 alignment: Alignment.centerLeft,
-                child: Text("Select Jilla",style: TextStyle(color: Colors.black,fontWeight: FontWeight.bold)),
+                child: Text("તાલુકા",style: TextStyle(color: Colors.black,fontWeight: FontWeight.bold)),
               ),
               const SizedBox(height: 5),
+
+              /*DropdownButtonFormField<Map<String, dynamic>>(
+                value: selectedSubDistrict,
+                items: provider.subDistrictList
+                    .map<DropdownMenuItem<Map<String, dynamic>>>(
+                      (sd) => DropdownMenuItem(
+                    value: sd["_id"],
+                    child: Text(sd['name'].toString()),
+                  ),
+                )
+                    .toList(),
+                onChanged: (v) {
+                  setState(() {
+                    selectedSubDistrict = v;
+                    selectedCity = null;
+                  });
+                  if (v != null) {
+                    print("તાલુકા ID: ${v['_id']}, Name: ${v['name']}");
+                    provider.getCities(v['_id']);
+                    _form.currentState!.validate(); // 👈 yeh line important
+                  }
+                },
+                decoration: const InputDecoration(
+                  hintText: 'તાલુકા',
+                  border: OutlineInputBorder(),
+                ),
+                validator: (v) => v == null ? 'તાલુકા સિલેક્ટ કરો' : null,
+              ),*/
+
+
               DropdownButtonFormField<String>(
-                value: selectedDistrictId,
-                items: districts.map((d) => DropdownMenuItem(value: d['id'].toString(), child: Text(d['name'].toString()))).toList(),
-                onChanged: (v) => setState(() => selectedDistrictId = v),
-                decoration: const InputDecoration(hintText: 'Jilla', border: OutlineInputBorder()),
-                validator: (v) => v == null ? 'Select Jilla' : null,
+                value: provider.selectedSubDistrictId,
+                items: provider.subDistrictList
+                    .map<DropdownMenuItem<String>>(
+                      (c) => DropdownMenuItem(
+                    value: c['_id'], // ✅ sirf ID rakho
+                    child: Text(c['name']),
+                  ),
+                )
+                    .toList(),
+                onChanged: (v) {
+                  if (v != null) provider.setSubDistrictSelection(v);
+                  _form.currentState!.validate(); // 👈 yeh line important
+
+                },
+                decoration: const InputDecoration(
+                  hintText: 'તાલુકા',
+                  border: OutlineInputBorder(),
+                ),
+                validator: (v) => v == null ? 'તાલુકા સિલેક્ટ કરો' : null,
               ),
+
+              const SizedBox(height: 12),
+
+              /// ---- CITY ----
+
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text("શહેર",style: TextStyle(color: Colors.black,fontWeight: FontWeight.bold)),
+              ),
+              const SizedBox(height: 5),
+
+              /*DropdownButtonFormField<Map<String, dynamic>>(
+                value: selectedCity,
+                *//*items: provider.cityList
+                    .map<DropdownMenuItem<Map<String, dynamic>>>(
+                      (c) => DropdownMenuItem(
+                    value: c['_id'],
+                    child: Text(c['name'].toString()),
+                  ),
+                )
+                    .toList(),*//*
+
+                onChanged: (v) {
+                  setState(() {
+                    selectedCity = v;
+                  });
+                  if (v != null) {
+                    print("શહેર ID: ${v['_id']}, Name: ${v['name']}");
+                    _form.currentState!.validate(); // 👈 yeh line important
+
+                  }
+                },
+                decoration: const InputDecoration(
+                  hintText: 'શહેર',
+                  border: OutlineInputBorder(),
+                ),
+                validator: (v) => v == null ? 'શહેર સિલેક્ટ કરો' : null,
+              ),*/
+
+
+              DropdownButtonFormField<String>(
+                value: provider.selectedCityId,
+                items: provider.cityList
+                    .map<DropdownMenuItem<String>>(
+                      (c) => DropdownMenuItem(
+                    value: c['_id'], // ✅ sirf ID rakho
+                    child: Text(c['name']),
+                  ),
+                )
+                    .toList(),
+                onChanged: (v) {
+                 // setState(() => selectedCityId = v);
+                  if (v != null) provider.setCitySelection(v);
+                  _form.currentState!.validate(); // 👈 yeh line important
+
+                },
+                decoration: const InputDecoration(
+                  hintText: 'શહેર',
+                  border: OutlineInputBorder(),
+                ),
+                validator: (v) => v == null ? 'શહેર સિલેક્ટ કરો' : null,
+              ),
+
+
               const SizedBox(height: 12),
 
               Align(
@@ -241,7 +526,7 @@ class _SignupScreenState extends State<SignupScreen> {
                 const Expanded(child: Text('Enable biometric login (fingerprint)')),
               ]),
               const SizedBox(height: 12),*/
-              AppButton(text: 'Register', onTap: _onRegister, loading: auth.loading),
+              AppButton(text: 'Register', onTap: _onRegister, loading: provider.isLoading),//auth.loading),
             ]),
           ),
         ),

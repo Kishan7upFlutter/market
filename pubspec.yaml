@@ -51,6 +51,9 @@ dependencies:
   cached_network_image: ^3.4.1
   device_info_plus: ^11.5.0
   art_sweetalert: ^0.0.5
+  dropdown_search: ^6.0.0
+  flutter_inappwebview: ^6.1.5
+
 
 dev_dependencies:
   flutter_test:
@@ -83,6 +86,7 @@ flutter:
      - assets/my_work_space.png
      - assets/eye_on.png
      - assets/eye_off.png
+     - assets/whatsapp.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

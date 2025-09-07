@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:market/presentation/providers/api_provider.dart';
 import 'package:marquee/marquee.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 
 class PriceBottomSheet extends StatefulWidget {
@@ -17,6 +18,8 @@ class PriceBottomSheet extends StatefulWidget {
 
 class _PriceBottomSheetState extends State<PriceBottomSheet> {
   List<dynamic> productList = [];
+ // List<dynamic> colorList = [];
+  Color bgColor = Colors.yellow[600]!; // default
 
   @override
   void initState() {
@@ -32,9 +35,14 @@ class _PriceBottomSheetState extends State<PriceBottomSheet> {
     print("DASSSSS" + " CategoryID : "+widget.id.toString());
     await apiprovider.getNewsChannel();
     await apiprovider.getProduct(widget.id.toString());
+    await apiprovider.getColors();
+    await apiprovider.getNumberList();
+
 
     setState(() {
       productList = apiprovider.productList;
+      //colorList = apiprovider.colorList;
+
     });
   }
 
@@ -43,86 +51,118 @@ class _PriceBottomSheetState extends State<PriceBottomSheet> {
   Widget build(BuildContext context) {
 
     final apiProvider = context.read<ApiProvider>();
-
+   // Color? bgColor = apiProvider.colorList.isNotEmpty?Color(int.parse(colorList.first["color"].substring(1), radix: 16) + 0xFF000000):Colors.yellow[600];
+    if (apiProvider.colorList.isNotEmpty) {
+      final colorHex = apiProvider.colorList.first["color"] ?? "#FFFF00"; // fallback
+      bgColor = Color(int.parse(colorHex.substring(1), radix: 16) + 0xFF000000);
+    }
     return Scaffold(
 
-      drawer: Drawer(
-        backgroundColor: Colors.yellow[600],
-        child: ListView(
-          children: [
-            DrawerHeader(
-              decoration: BoxDecoration(color:  Colors.yellow[600]),
-              child: Center(
-                child: Column(
-                  children: [
-                    Image.asset(
-                      "assets/logo.png", // ← yaha apna logo rakho
-                      height: 60,
-                    ),
-                    SizedBox(height: 10.h,),
-                    Text(
-                      "મહાદેવ",
-                      style: TextStyle(color: Colors.black, fontSize: 20,fontWeight: FontWeight.bold),
-                    ),
-                    Text(
-                      "(નરેશભાઈ)",
-                      style: TextStyle(color: Colors.black, fontSize: 15),
-                    ),
-                  ],
+        drawer: Drawer(
+
+          backgroundColor: bgColor,
+          child: ListView(
+            children: [
+              DrawerHeader(
+                decoration: BoxDecoration(color:  /*Colors.yellow[600]*/bgColor),
+                child: Center(
+                  child: Column(
+                    children: [
+                      Image.asset(
+                        "assets/logo.png", // ← yaha apna logo rakho
+                        height: 60,
+                      ),
+                      SizedBox(height: 10.h,),
+                      Text(
+                        "મહાદેવ",
+                        style: TextStyle(color: Colors.white, fontSize: 20,fontWeight: FontWeight.bold),
+                      ),
+                      Text(
+                        "(નરેશભાઈ)",
+                        style: TextStyle(color: Colors.white, fontSize: 15),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-            ListTile(
-              leading: const Icon(Icons.message_rounded),
-              title: const Text("વોટ્સએપમાં ભાવ જોવા માટે"),
-              onTap: () {},
-            ),
-            ListTile(
-              leading: const Icon(Icons.picture_as_pdf),
-              title: const Text("PDF"),
-              onTap: () {
-                Navigator.pushNamed(context, '/pdfScreen');
+              ListTile(
+                leading: const Icon(Icons.message_rounded,color: Colors.white,),
+                title:  Text("વોટ્સએપમાં ભાવ જોવા માટે",style: TextStyle(color: Colors.white),),
+                onTap: () async {
+                  //Navigator.pushNamed(context, '/whatsappListScreen');
+                  if (apiProvider.numberList.isNotEmpty) {
+                    final phoneNumber = apiProvider.numberList.first["number"] ?? "1234567890"; // fallback
+                    //bgColor = Color(int.parse(colorHex.substring(1), radix: 16) + 0xFF000000);
+                    final String whatsappUrl = "https://wa.me/$phoneNumber"; // WhatsApp ka URL scheme
 
-              },
-            ),
+                    final Uri whatsappUri = Uri.parse(whatsappUrl);
 
-            ListTile(
-              leading: const Icon(Icons.branding_watermark),
-              title: const Text("અમારી શાખાઓ"),
-              onTap: () {
+                    if (await canLaunchUrl(whatsappUri)) {
+                  await launchUrl(whatsappUri, mode: LaunchMode.externalApplication);
+                  } else {
+                  throw 'Could not launch WhatsApp for $phoneNumber';
+                  }
+                }
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.picture_as_pdf,color: Colors.white,),
+                title: const Text("PDF",style: TextStyle(color: Colors.white),),
+                onTap: () {
+                  Navigator.pushNamed(context, '/pdfScreen');
 
-                Navigator.pushNamed(context, '/branchScreen');
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.maps_home_work_outlined),
-              title: const Text("બેંકની માહિતી"),
-              onTap: () {
+                },
+              ),
 
-                Navigator.pushNamed(context, '/bankScreen');
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.call),
-              title: const Text("સંપર્ક"),
-              onTap: () {
+              ListTile(
+                leading: const Icon(Icons.branding_watermark,color: Colors.white,),
+                title: const Text("અમારી શાખાઓ",style: TextStyle(color: Colors.white),),
+                onTap: () {
 
-                Navigator.pushNamed(context, '/numberScreen');
+                  Navigator.pushNamed(context, '/branchScreen');
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.maps_home_work_outlined,color: Colors.white,),
+                title: const Text("બેંકની માહિતી",style: TextStyle(color: Colors.white),),
+                onTap: () {
 
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.exit_to_app),
-              title: const Text("બહાર નીકળો"),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-          ],
+                  Navigator.pushNamed(context, '/bankScreen');
+                },
+              ),
+              ListTile(
+                leading:  Icon(Icons.call,color: Colors.white,),
+                title: const Text("સંપર્ક",style: TextStyle(color: Colors.white),),
+                onTap: () async{
+                  if (apiProvider.numberList.isNotEmpty) {
+                    final phoneNumber = apiProvider.numberList.first["number"] ?? "1234567890"; // fallback
+                    final Uri callUri = Uri(scheme: 'tel', path: phoneNumber); // apna number
+                    if (await canLaunchUrl(callUri)) {
+                  await launchUrl(callUri);
+                  } else {
+                  throw 'Could not launch $callUri';
+                  }
+                }
+                  //Navigator.pushNamed(context, '/numberScreen');
+//whatsappListScreen
+                  //
+                },
+              ),
+              ListTile(
+                leading:  Icon(Icons.exit_to_app,color: Colors.white,),
+                title: const Text("બહાર નીકળો",style: TextStyle(color: Colors.white),),
+                onTap: () {
+                  Navigator.pop(context);
+                },
+              ),
+            ],
+          ),
         ),
-      ),
       appBar: AppBar(
-        backgroundColor: Colors.yellow[600],
+        iconTheme: const IconThemeData(
+          color: Colors.white, // 👈 Drawer (hamburger) icon color
+        ),
+        backgroundColor: /*Colors.yellow[600],*/bgColor,
         titleSpacing: 0,
         title: InkWell(
           onTap: (){
@@ -137,8 +177,8 @@ class _PriceBottomSheetState extends State<PriceBottomSheet> {
               const SizedBox(width: 8),
               Column(
                 children: [
-                  const Text("મહાદેવ", style: TextStyle(color: Colors.black, fontSize: 18,fontWeight: FontWeight.bold),),
-                  const Text("(નરેશભાઈ)", style: TextStyle(color: Colors.black, fontSize: 15,fontWeight: FontWeight.bold),),
+                  const Text("મહાદેવ", style: TextStyle(color: Colors.white, fontSize: 18,fontWeight: FontWeight.bold),),
+                  const Text("(નરેશભાઈ)", style: TextStyle(color: Colors.white, fontSize: 15,fontWeight: FontWeight.bold),),
 
                 ],
               ),
@@ -154,7 +194,7 @@ class _PriceBottomSheetState extends State<PriceBottomSheet> {
             },
           ),
           IconButton(
-            icon: const Icon(Icons.notifications),
+            icon: const Icon(Icons.notifications,color: Colors.white,),
             onPressed: () {
               Navigator.pushNamed(context, '/notificationScreen');
 
@@ -167,7 +207,7 @@ class _PriceBottomSheetState extends State<PriceBottomSheet> {
     onRefresh: _initDashboard,
     child: apiProvider.isLoading
     ? const Center(child: CircularProgressIndicator())
-        : productList.isEmpty
+        : apiProvider.productList.isEmpty
     ?  Center(child: Text("ડેટા નથી....",style: TextStyle(fontSize: 25.sp),))
         : SingleChildScrollView(
         scrollDirection: Axis.vertical,
@@ -200,7 +240,8 @@ class _PriceBottomSheetState extends State<PriceBottomSheet> {
             ),
 
             DataTable(
-              headingRowColor: WidgetStateProperty.all(Colors.grey),
+              headingRowColor: WidgetStateProperty.all(bgColor),
+              headingRowHeight: 35, // 👈 header row ki height
               columnSpacing: 20,
               border: TableBorder.all(
                 color: Colors.black,

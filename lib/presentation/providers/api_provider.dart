@@ -22,6 +22,7 @@ class ApiProvider with ChangeNotifier {
   List<dynamic> pdfList = [];
   List<dynamic> numberList = [];
   List<dynamic> bannerList = [];
+  List<dynamic> colorList = [];
 
 
   dynamic categoriesResponse;
@@ -33,6 +34,7 @@ class ApiProvider with ChangeNotifier {
   dynamic pdfResponse;
   dynamic numberResponse;
   dynamic bannerResponse;
+  dynamic colorResponse;
 
   dynamic bankResponse;
 
@@ -40,6 +42,163 @@ class ApiProvider with ChangeNotifier {
   String? error;
 
 
+
+  /*// 🔽 Location lists
+  List<Map<String, dynamic>> stateList = [];
+  List<Map<String, dynamic>> districtList = [];
+  List<Map<String, dynamic>> subDistrictList = [];
+  List<Map<String, dynamic>> cityList = [];
+
+  // 🔽 Selected Objects
+  Map<String, dynamic>? selectedState;
+  Map<String, dynamic>? selectedDistrict;
+  Map<String, dynamic>? selectedSubDistrict;
+  Map<String, dynamic>? selectedCity;*/
+  // 🔽 Location lists (same as before)
+  List<Map<String, dynamic>> stateList = [];
+  List<Map<String, dynamic>> districtList = [];
+  List<Map<String, dynamic>> subDistrictList = [];
+  List<Map<String, dynamic>> cityList = [];
+
+// 🔽 Selected IDs (pehle Map tha, ab sirf ID store karenge)
+  String? selectedStateId;
+  String? selectedDistrictId;
+  String? selectedSubDistrictId;
+  String? selectedCityId;
+
+  // 🔽 API Responses
+  dynamic stateResponse;
+  dynamic districtResponse;
+  dynamic subDistrictResponse;
+  dynamic cityResponse;
+
+
+
+  void setStateSelection(String stateId) {
+    selectedStateId = stateId;
+    selectedDistrictId = null;
+    selectedSubDistrictId = null;
+    selectedCityId = null;
+
+    districtList.clear();
+    subDistrictList.clear();
+    cityList.clear();
+
+    getDistricts(stateId);
+  }
+
+  void setDistrictSelection(String districtId) {
+    selectedDistrictId = districtId;
+    selectedSubDistrictId = null;
+    selectedCityId = null;
+
+    subDistrictList.clear();
+    cityList.clear();
+
+    getSubDistricts(districtId);
+  }
+
+  void setSubDistrictSelection(String subDistrictId) {
+    selectedSubDistrictId = subDistrictId;
+    selectedCityId = null;
+
+    cityList.clear();
+
+    getCities(subDistrictId);
+  }
+
+  void setCitySelection(String cityId) {
+    selectedCityId = cityId;
+    notifyListeners();
+  }
+
+
+
+
+  /// ---- STATES ----
+  Future<void> getStates() async {
+    isLoading = true;
+    notifyListeners();
+    try {
+      stateResponse = await _repository.fetchStates();
+      if (stateResponse != null && stateResponse["success"] == true) {
+        //stateList = stateResponse["data"];
+        stateList = List<Map<String, dynamic>>.from(stateResponse["data"]);
+
+      } else {
+        error = "Failed to load states";
+      }
+    } catch (e) {
+      error = e.toString();
+    }
+    isLoading = false;
+    notifyListeners();
+  }
+
+  /// ---- DISTRICTS ----
+  Future<void> getDistricts(String stateId) async {
+    isLoading = true;
+    notifyListeners();
+    try {
+      districtResponse = await _repository.fetchDistricts(stateId);
+      if (districtResponse != null && districtResponse["success"] == true) {
+        districtList = List<Map<String, dynamic>>.from(districtResponse["data"]);
+      } else {
+        error = "Failed to load districts";
+      }
+    } catch (e) {
+      error = e.toString();
+    }
+    isLoading = false;
+    notifyListeners();
+  }
+
+  /// ---- SUB-DISTRICTS ----
+  Future<void> getSubDistricts(String districtId) async {
+    isLoading = true;
+    notifyListeners();
+    try {
+      subDistrictResponse = await _repository.fetchSubDistricts(districtId);
+      if (subDistrictResponse != null && subDistrictResponse["success"] == true) {
+        subDistrictList = List<Map<String, dynamic>>.from(subDistrictResponse["data"]);
+      } else {
+        error = "Failed to load sub-districts";
+      }
+    } catch (e) {
+      error = e.toString();
+    }
+    isLoading = false;
+    notifyListeners();
+  }
+
+  /// ---- CITIES ----
+  Future<void> getCities(String subDistrictId) async {
+    isLoading = true;
+    notifyListeners();
+    try {
+      cityResponse = await _repository.fetchCities(subDistrictId);
+      if (cityResponse != null && cityResponse["success"] == true) {
+        cityList = List<Map<String, dynamic>>.from(cityResponse["data"]);
+      } else {
+        error = "Failed to load cities";
+      }
+    } catch (e) {
+      error = e.toString();
+    }
+    isLoading = false;
+    notifyListeners();
+  }
+
+
+  // Agar tujhe kabhi selected object chahiye, toh ID se lookup kar lena
+  Map<String, dynamic>? get selectedState =>
+      stateList.firstWhere((s) => s['_id'] == selectedStateId, orElse: () => {});
+  Map<String, dynamic>? get selectedDistrict =>
+      districtList.firstWhere((d) => d['_id'] == selectedDistrictId, orElse: () => {});
+  Map<String, dynamic>? get selectedSubDistrict =>
+      subDistrictList.firstWhere((sd) => sd['_id'] == selectedSubDistrictId, orElse: () => {});
+  Map<String, dynamic>? get selectedCity =>
+      cityList.firstWhere((c) => c['_id'] == selectedCityId, orElse: () => {});
 
 
 
@@ -305,6 +464,27 @@ class ApiProvider with ChangeNotifier {
 
       if (bannerResponse != null && bannerResponse["success"] == true) {
         bannerList = bannerResponse["banners"];
+      } else {
+        error = "Failed to load categories";
+      }
+    } catch (e) {
+      error = e.toString();
+      print("Error" + error.toString());
+    }
+    isLoading = false;
+  }
+
+
+
+
+  Future<void> getColors() async {
+    isLoading = true;
+
+    try {
+      colorResponse = await _repository.fetchColors();
+
+      if (colorResponse != null && colorResponse["success"] == true) {
+        colorList = colorResponse["colors"];
       } else {
         error = "Failed to load categories";
       }

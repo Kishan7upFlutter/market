@@ -2,16 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:market/presentation/providers/api_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
-class NotificationScreen extends StatefulWidget {
-  const NotificationScreen({super.key});
+class WhatsappListScreen extends StatefulWidget {
+  const WhatsappListScreen({super.key});
 
   @override
-  State<NotificationScreen> createState() => _NotificationScreenState();
+  State<WhatsappListScreen> createState() => _WhatsappListScreenState();
 }
 
-class _NotificationScreenState extends State<NotificationScreen> {
-  List<dynamic> notificationList = [];
+class _WhatsappListScreenState extends State<WhatsappListScreen> {
+  List<dynamic> numberList = [];
   bool isLoading = false;
   Color bgColor = Colors.yellow[600]!; // default
 
@@ -25,11 +26,11 @@ class _NotificationScreenState extends State<NotificationScreen> {
 
   Future<void> _initNotificationDetails() async {
     final apiprovider = context.read<ApiProvider>();
-    await apiprovider.getNotifications();
+    await apiprovider.getNumberList();
     await apiprovider.getColors();
 
     setState(() {
-      notificationList = apiprovider.notifications;
+      numberList = apiprovider.numberList;
       isLoading = false;
     });
   }
@@ -42,30 +43,42 @@ class _NotificationScreenState extends State<NotificationScreen> {
       bgColor = Color(int.parse(colorHex.substring(1), radix: 16) + 0xFF000000);
     }
     return Scaffold(
+     // appBar: AppBar(title: const Text("વોટ્સએપમાં ભાવ જોવા માટે")),
       appBar: AppBar(
           backgroundColor: bgColor,
           iconTheme:  IconThemeData(
             color: Colors.white, // 👈 leading (back/menu) icon color
           ),
-          title:  Text("Notifications",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),)),
+          title:  Text("વોટ્સએપમાં ભાવ જોવા માટ",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),)),
       body: RefreshIndicator(
         onRefresh: _initNotificationDetails,
         child: apiprovider.isLoading
             ? const Center(child: CircularProgressIndicator())
-            : notificationList.isEmpty
+            : numberList.isEmpty
             ? const Center(child: Text("ડેટા નથી...."))
             : ListView.builder(
           physics: const AlwaysScrollableScrollPhysics(),
-          itemCount: notificationList.length,
+          itemCount: numberList.length,
           itemBuilder: (context, index) {
-            final item = notificationList[index];
+            final item = numberList[index];
 
-           return NotificationCard(
-              title: item["title"] ?? "",
-              message: item["description"] ?? "",
-             tilecolor: bgColor,
+            return InkWell(
+              onTap: () async {
+                final String phoneNumber = item["number"]; // number string, e.g. "919876543210"
+                final String whatsappUrl = "https://wa.me/$phoneNumber"; // WhatsApp ka URL scheme
 
+                final Uri whatsappUri = Uri.parse(whatsappUrl);
 
+                if (await canLaunchUrl(whatsappUri)) {
+                  await launchUrl(whatsappUri, mode: LaunchMode.externalApplication);
+                } else {
+                  throw 'Could not launch WhatsApp for $phoneNumber';
+                }
+              },
+              child: NotificationCard(
+                title: item["number"] ?? "",
+                tilecolor: bgColor,
+              ),
             );
             /*return Card(
               margin: const EdgeInsets.symmetric(
@@ -96,10 +109,10 @@ class _NotificationScreenState extends State<NotificationScreen> {
         ),
         backgroundColor: Colors.yellow[600],
       ),
-     
 
-     
-     
+
+
+
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(12),
         child: Column(
@@ -140,14 +153,13 @@ class _NotificationScreenState extends State<NotificationScreen> {
 
 class NotificationCard extends StatelessWidget {
   final String title;
-  final String message;
   final Color tilecolor;
 
   const NotificationCard({
     super.key,
     required this.title,
-    required this.message,
     required this.tilecolor
+
   });
 
   @override
@@ -159,9 +171,12 @@ class NotificationCard extends StatelessWidget {
       ),
       child: Padding(
         padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: Row(
+         // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          //crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Image.asset("assets/whatsapp.png", height: 28),
+            SizedBox(width: 10.w,),
             Text(
               title,
               style:  TextStyle(
@@ -170,14 +185,8 @@ class NotificationCard extends StatelessWidget {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(height: 8),
-            Text(
-              message,
-              style:  TextStyle(
-                color: Colors.white,
-                fontSize: 15.sp,
-              ),
-            ),
+
+
           ],
         ),
       ),

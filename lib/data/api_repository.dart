@@ -108,5 +108,35 @@ class ApiRepository {
     },);
   }
 
+  Future<dynamic> fetchColors() async {
+    return await _apiClient.get("colors",  params: {
+      "status": "true",
+      "sortBy": "createdAt",
+      "order": "asc",
+    },);
+  }
+
+
+
+  // 🔽 STATES
+  Future<dynamic> fetchStates() async {
+    return await _apiClient.get("locations/states");
+  }
+
+  // 🔽 DISTRICTS
+  Future<dynamic> fetchDistricts(String stateId) async {
+    return await _apiClient.get("locations/districts/$stateId");
+  }
+
+  // 🔽 SUB-DISTRICTS
+  Future<dynamic> fetchSubDistricts(String districtId) async {
+    return await _apiClient.get("locations/subdistricts/$districtId");
+  }
+
+  // 🔽 CITIES
+  Future<dynamic> fetchCities(String subDistrictId) async {
+    return await _apiClient.get("locations/cities/$subDistrictId");
+  }
+
   //user/create-user
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../presentation/screens/priceBottomSheet.dart';
 
 class TwoCardItem extends StatelessWidget {
@@ -11,20 +12,21 @@ class TwoCardItem extends StatelessWidget {
     final bool shouldFlash = item["flash"] == true;
     final card = Card(
       elevation: 10,
+      shadowColor: Colors.black,
       color: Color(
         int.parse(
           item["color"].toString().replaceFirst("#", "0xff"),
         ),
       ),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
       child: Padding(
-        padding: const EdgeInsets.all(12),
+        padding:  EdgeInsets.only(top: 18,bottom: 18),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Text(
               item['name']?.toString() ?? '',
-              style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+              style:  TextStyle(fontWeight: FontWeight.bold, color: Colors.white,fontSize: 12.sp),
             ),
           ],
         ),

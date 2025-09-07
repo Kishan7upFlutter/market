@@ -7,6 +7,7 @@ import 'package:market/presentation/providers/api_provider.dart';
 import 'package:market/widgets/two_card_item.dart';
 import 'package:marquee/marquee.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../providers/dashboard_provider.dart';
 import '../providers/auth_provider.dart';
 
@@ -20,6 +21,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
   String searchQuery = '';
   List<dynamic> filteredItems = [];
+
+ // List<dynamic> colorList = [];
+  Color bgColor = Colors.yellow[600]!; // default
+
   @override
   void initState() {
     super.initState();
@@ -28,33 +33,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Future<void> _initDashboard() async {
     final dash = context.read<ApiProvider>();
-    // final dash = context.read<DashboardProvider>();
-    // await dash.checkAppVersionAndMaybeForce();
-    // if (dash.forceUpdate) {
-    //   if (!mounted) return;
-    //   showDialog(
-    //     context: context,
-    //     barrierDismissible: false,
-    //     builder: (_) => AlertDialog(
-    //       title: const Text('Update Required'),
-    //       content: const Text('Please update the app to continue.'),
-    //       actions: [
-    //         TextButton(
-    //           onPressed: () async {
-    //             Navigator.of(context).pop();
-    //           },
-    //           child: const Text('OK'),
-    //         )
-    //       ],
-    //     ),
-    //   );
-    //   return;
-    // }
+
      await dash.getCategories();
      await dash.getNewsChannel();
      await dash.getBannerList();
+     await dash.getColors();
+    await dash.getNumberList();
 
-     if(dash.bannerList.isNotEmpty)
+
+    if(dash.bannerList.isNotEmpty)
        {
 
          ArtSweetAlert.show(
@@ -68,9 +55,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                          bottom: 12.0
                      ),
                      child: Image.network(
-                       ApiClient.bannerImgBasePath + dash.bannerList.first["image"],
+                      dash.bannerList.first["image"],
                        fit: BoxFit.cover,
-                       loadingBuilder: (context, child, loadingProgress) {
+                      /* loadingBuilder: (context, child, loadingProgress) {
                          if (loadingProgress == null) return child; // ✅ image loaded
 
                          return SizedBox(
@@ -93,7 +80,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                              ),
                            ),
                          );
-                       },
+                       },*/
                        errorBuilder: (context, error, stackTrace) {
                          return const Icon(
                            Icons.broken_image,
@@ -107,42 +94,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                  ]
              )
          );
-        /* ArtSweetAlert.show(
-           context: context,
-           artDialogArgs: ArtDialogArgs(
-             title: "Banner!",
-             text: dash.bannerList.first["text"] ?? "",
-             customColumns: [
-               Container(
-                 margin: const EdgeInsets.only(bottom: 12.0),
-                 child: Image.network(
-                   ApiClient.bannerImgBasePath + dash.bannerList.first["image"],
-                   fit: BoxFit.cover,
-                   loadingBuilder: (context, child, loadingProgress) {
-                     if (loadingProgress == null) return child; // ✅ image loaded
-                     return SizedBox(
-                       height: 150, // aap height fix kar do taki dialog jump na kare
-                       child: const Center(
-                         child: CircularProgressIndicator(),
-                       ),
-                     );
-                   },
-                   errorBuilder: (context, error, stackTrace) {
-                     return const Icon(
-                       Icons.broken_image,
-                       size: 80,
-                       color: Colors.grey,
-                     );
-                   },
-                 ),
-               )
-             ],
-           ),
-         );*/
-         //_showBannerDialog(dash.bannerList.first);
+
        }
+
     setState(() {
       filteredItems = dash.categories;
+      //colorList = dash.colorList;
     });
   }
 
@@ -245,16 +202,25 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final auth = context.watch<AuthProvider>();
     final userName = auth.user?['name']?.toString() ?? 'User';
     final topHeight = MediaQuery.of(context).size.height * 0.20;
+    //print(colorList[0]["color"]);
+    //Color bgColor = Color(int.parse(colorList[0]["color"].substring(1), radix: 16) + 0xFF000000);
+   // Color? bgColor = apiProvider.colorList.isNotEmpty?Color(int.parse(colorList.first["color"].substring(1), radix: 16) + 0xFF000000):Colors.yellow[600];
+    if (apiProvider.colorList.isNotEmpty) {
+      final colorHex = apiProvider.colorList.first["color"] ?? "#FFFF00"; // fallback
+      bgColor = Color(int.parse(colorHex.substring(1), radix: 16) + 0xFF000000);
+    }
 
-    return Scaffold(
-      backgroundColor: Colors.yellow[600],
+    return apiProvider.isLoading?Scaffold(body: Center(child: CircularProgressIndicator(color: Colors.black,),),):Scaffold(
+      backgroundColor: bgColor,
       key: _scaffoldKey,
+
       drawer: Drawer(
-        backgroundColor: Colors.yellow[600],
+
+        backgroundColor: bgColor,
         child: ListView(
           children: [
             DrawerHeader(
-              decoration: BoxDecoration(color:  Colors.yellow[600]),
+              decoration: BoxDecoration(color:  /*Colors.yellow[600]*/bgColor),
               child: Center(
                 child: Column(
                   children: [
@@ -265,24 +231,46 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     SizedBox(height: 10.h,),
                     Text(
                       "મહાદેવ",
-                      style: TextStyle(color: Colors.black, fontSize: 20,fontWeight: FontWeight.bold),
+                      style: TextStyle(color: Colors.white, fontSize: 20,fontWeight: FontWeight.bold),
                     ),
                     Text(
                       "(નરેશભાઈ)",
-                      style: TextStyle(color: Colors.black, fontSize: 15),
+                      style: TextStyle(color: Colors.white, fontSize: 15),
                     ),
                   ],
                 ),
               ),
             ),
             ListTile(
-              leading: const Icon(Icons.message_rounded),
-              title: const Text("વોટ્સએપમાં ભાવ જોવા માટે"),
-              onTap: () {},
+              leading: const Icon(Icons.message_rounded,color: Colors.white,),
+              title:  Text("વોટ્સએપમાં ભાવ જોવા માટે",style: TextStyle(color: Colors.white),),
+              onTap: () async  {
+                //Navigator.pushNamed(context, '/whatsappListScreen');
+               // final apiprovider = context.read<ApiProvider>();
+                //apiprovider.getNumberList();
+
+                if (apiProvider.numberList.isNotEmpty) {
+                  final phoneNumber = apiProvider.numberList.first["number"] ?? "1234567890"; // fallback
+                  //bgColor = Color(int.parse(colorHex.substring(1), radix: 16) + 0xFF000000);
+                  final String whatsappUrl = "https://wa.me/$phoneNumber"; // WhatsApp ka URL scheme
+
+                  final Uri whatsappUri = Uri.parse(whatsappUrl);
+
+                  if (await canLaunchUrl(whatsappUri)) {
+                    await launchUrl(whatsappUri, mode: LaunchMode.externalApplication);
+                  } else {
+                    throw 'Could not launch WhatsApp for $phoneNumber';
+                  }
+                }
+
+                //final String phoneNumber = apiprovider.numberList.first["number"]; // number string, e.g. "919876543210"
+
+
+              },
             ),
             ListTile(
-              leading: const Icon(Icons.picture_as_pdf),
-              title: const Text("PDF"),
+              leading: const Icon(Icons.picture_as_pdf,color: Colors.white,),
+              title: const Text("PDF",style: TextStyle(color: Colors.white),),
               onTap: () {
                 Navigator.pushNamed(context, '/pdfScreen');
 
@@ -290,33 +278,42 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
 
             ListTile(
-              leading: const Icon(Icons.branding_watermark),
-              title: const Text("અમારી શાખાઓ"),
+              leading: const Icon(Icons.branding_watermark,color: Colors.white,),
+              title: const Text("અમારી શાખાઓ",style: TextStyle(color: Colors.white),),
               onTap: () {
 
                 Navigator.pushNamed(context, '/branchScreen');
               },
             ),
             ListTile(
-              leading: const Icon(Icons.maps_home_work_outlined),
-              title: const Text("બેંકની માહિતી"),
+              leading: const Icon(Icons.maps_home_work_outlined,color: Colors.white,),
+              title: const Text("બેંકની માહિતી",style: TextStyle(color: Colors.white),),
               onTap: () {
 
                 Navigator.pushNamed(context, '/bankScreen');
               },
             ),
             ListTile(
-              leading: const Icon(Icons.call),
-              title: const Text("સંપર્ક"),
-              onTap: () {
-
-                Navigator.pushNamed(context, '/numberScreen');
-
+              leading:  Icon(Icons.call,color: Colors.white,),
+              title: const Text("સંપર્ક",style: TextStyle(color: Colors.white),),
+              onTap: () async {
+                if (apiProvider.numberList.isNotEmpty) {
+                  final phoneNumber = apiProvider.numberList.first["number"] ?? "1234567890"; // fallback
+                  final Uri callUri = Uri(scheme: 'tel', path: phoneNumber); // apna number
+                  if (await canLaunchUrl(callUri)) {
+                    await launchUrl(callUri);
+                  } else {
+                    throw 'Could not launch $callUri';
+                  }
+              }
+                //Navigator.pushNamed(context, '/numberScreen');
+//whatsappListScreen
+              //
               },
             ),
             ListTile(
-              leading: const Icon(Icons.exit_to_app),
-              title: const Text("બહાર નીકળો"),
+              leading:  Icon(Icons.exit_to_app,color: Colors.white,),
+              title: const Text("બહાર નીકળો",style: TextStyle(color: Colors.white),),
               onTap: () {
                 Navigator.pop(context);
               },
@@ -326,7 +323,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ),
 
       appBar: AppBar(
-        backgroundColor: Colors.yellow[600],
+        iconTheme: const IconThemeData(
+          color: Colors.white, // 👈 Drawer (hamburger) icon color
+        ),
+        backgroundColor: bgColor,
         titleSpacing: 0,
         title: Container(
           margin: EdgeInsets.only(left: 10.w),
@@ -339,8 +339,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
               const SizedBox(width: 8),
               Column(
                 children: [
-                  const Text("મહાદેવ", style: TextStyle(color: Colors.black, fontSize: 18,fontWeight: FontWeight.bold),),
-                  const Text("(નરેશભાઈ)", style: TextStyle(color: Colors.black, fontSize: 15,fontWeight: FontWeight.bold),),
+                  const Text("મહાદેવ", style: TextStyle(color: Colors.white, fontSize: 18,fontWeight: FontWeight.bold),),
+                  const Text("(નરેશભાઈ)", style: TextStyle(color: Colors.white, fontSize: 15,fontWeight: FontWeight.bold),),
 
                 ],
               ),
@@ -356,7 +356,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             },
           ),
           IconButton(
-            icon: const Icon(Icons.notifications),
+            icon: const Icon(Icons.notifications,color: Colors.white,),
             onPressed: () {
               Navigator.pushNamed(context, '/notificationScreen');
 
@@ -536,16 +536,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   Container(
                     decoration: BoxDecoration(
                       border: Border.all(color: Colors.grey),
-                      borderRadius: BorderRadius.all(Radius.circular(30.r))
+                      borderRadius: BorderRadius.all(Radius.circular(15.r))
                     ),
-                    height: 40, // 👈 jitni height chahiye
+
+                    height: 45, // 👈 jitni height chahiye
                     child: TextField(
                       onChanged: _filterItems,
                       decoration: InputDecoration(
                         hintText: "Search...",
                         prefixIcon: const Icon(Icons.search, size: 18),
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(20),
+                         // borderRadius: BorderRadius.circular(20),
                           borderSide: BorderSide.none,
                         ),
                         isDense: true,
@@ -586,7 +587,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     child:
                     LiquidPullToRefresh(
                       onRefresh: _refreshDashboard, // वही function use होगा
-                      color: Colors.yellow[600],     // liquid का color
+                      color: bgColor,     // liquid का color
                       backgroundColor: Colors.white, // loader का background
                       height: 120,                   // liquid की ऊँचाई
                       animSpeedFactor: 2,            // animation की speed

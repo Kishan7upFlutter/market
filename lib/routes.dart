@@ -11,6 +11,7 @@ import 'package:market/presentation/screens/pdf_list_screen.dart';
 import 'package:market/presentation/screens/sample_api_UI.dart';
 import 'package:market/presentation/screens/signup_screen.dart';
 import 'package:market/presentation/screens/splash_screen.dart';
+import 'package:market/presentation/screens/whatsapp_list_screen.dart';
 
 
 final Map<String, WidgetBuilder> appRoutes = {
@@ -26,7 +27,8 @@ final Map<String, WidgetBuilder> appRoutes = {
   '/bankScreen': (context) => const BankListScreen(),
   '/pdfScreen': (context) => const PdfListScreen(),
   '/numberScreen': (context) => const NumberListScreen(),
+  '/whatsappListScreen': (context) => const WhatsappListScreen(),
 
-  //BankListScreen
+  //WhatsappListScreen
 
 };

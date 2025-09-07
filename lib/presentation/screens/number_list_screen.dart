@@ -14,6 +14,7 @@ class NumberListScreen extends StatefulWidget {
 class _NumberListScreenState extends State<NumberListScreen> {
   List<dynamic> numberList = [];
   bool isLoading = false;
+  Color bgColor = Colors.yellow[600]!; // default
 
   @override
   void initState() {
@@ -26,6 +27,8 @@ class _NumberListScreenState extends State<NumberListScreen> {
   Future<void> _initNotificationDetails() async {
     final apiprovider = context.read<ApiProvider>();
     await apiprovider.getNumberList();
+    await apiprovider.getColors();
+
     setState(() {
       numberList = apiprovider.numberList;
       isLoading = false;
@@ -35,9 +38,18 @@ class _NumberListScreenState extends State<NumberListScreen> {
   @override
   Widget build(BuildContext context) {
     final apiprovider = context.read<ApiProvider>();
-
+    if (apiprovider.colorList.isNotEmpty) {
+      final colorHex = apiprovider.colorList.first["color"] ?? "#FFFF00"; // fallback
+      bgColor = Color(int.parse(colorHex.substring(1), radix: 16) + 0xFF000000);
+    }
     return Scaffold(
-      appBar: AppBar(title: const Text("સંપર્ક")),
+     // appBar: AppBar(title: const Text("સંપર્ક")),
+      appBar: AppBar(
+          backgroundColor: bgColor,
+          iconTheme:  IconThemeData(
+            color: Colors.white, // 👈 leading (back/menu) icon color
+          ),
+          title:  Text("સંપર્ક",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),)),
       body: RefreshIndicator(
         onRefresh: _initNotificationDetails,
         child: apiprovider.isLoading
@@ -59,8 +71,35 @@ class _NumberListScreenState extends State<NumberListScreen> {
                 throw 'Could not launch $callUri';
                 }
               },
-              child: NotificationCard(
+            /*  child: NotificationCard(
                 title: item["number"] ?? "",
+              ),*/
+              child: Card(
+                color:bgColor,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12.r),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    //crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Icon(Icons.call,color: Colors.white,),
+                      SizedBox(width: 10.w,),
+                      Text(
+                        item["number"] ?? "",
+                        style:  TextStyle(
+                          color: Colors.white,
+                          fontSize: 18.sp,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+
+
+                    ],
+                  ),
+                ),
               ),
             );
             /*return Card(
@@ -83,51 +122,7 @@ class _NumberListScreenState extends State<NumberListScreen> {
       ),
     );
 
-    /*return Scaffold(
-      appBar: AppBar(
-        title: const Text("Notification"),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
-        ),
-        backgroundColor: Colors.yellow[600],
-      ),
 
-
-
-
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          children: const [
-            NotificationCard(
-              title: "SHOP TIME",
-              message:
-              "બજાર ગામ ના વેપારીઓઓ ને જાણ માટે બપોરે ત્રણ વાગ્યા પહેલા ઓર્ડર આપેલો હશી તો તે દિશે માલ બુક થશી "
-                  "ત્રણ વાગ્યા પછી ઓર્ડર આવશે તો બીજે દિશે માલ બુક થશી",
-            ),
-            SizedBox(height: 12),
-            NotificationCard(
-              title: "ORDER",
-              message:
-              "લોકલ હોલસેલ વેપારીઓને જાણ માટે હોલસેલ દુકાન ખોલવાનૉ સમય બપોરે 3 થી રાત ના 8.00 - બજાર ગામ ના "
-                  "વેપારીઓમાટે વોટ્સએપ ઉપર 24 કલાક દુકાન ચાલુ રહેશે",
-            ),
-            SizedBox(height: 12),
-            NotificationCard(
-              title: "માલ ખરીદી પહેલા સુચના",
-              message:
-              "અમારી પાસ થી માલ ખરીદી કરતા પહેલા સુચના\n\n"
-                  "આપના ઓર્ડર મુકબલ આપ જૅ ટ્રાન્સપોર્ટ મા કરોશ એમા બુક થશી જશે\n\n"
-                  "બુક થયા પછી ટ્રાન્સપોર્ટ ની બિલટી અમને આપવાની જવાબદારી હોય છે\n"
-                  "માલ બુક થયા પછી બિલટી આપ્યા પછી અમારી કોઈપણ પ્રકારની જવાબદારી રહેતી નથી\n\n"
-                  "જેથી આવા ફિન અમને ન કરવા સરઝ છે\n\n"
-                  "માલ નહી મળ્યો",
-            ),
-          ],
-        ),
-      ),
-    );*/
   }
 }
 
@@ -152,9 +147,11 @@ class NotificationCard extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+         // mainAxisAlignment: MainAxisAlignment.spaceBetween,
           //crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Icon(Icons.call),
+            SizedBox(width: 10.w,),
             Text(
               title,
               style:  TextStyle(
@@ -163,7 +160,7 @@ class NotificationCard extends StatelessWidget {
                 fontWeight: FontWeight.bold,
               ),
             ),
-           Icon(Icons.call)
+
 
           ],
         ),

@@ -13,6 +13,7 @@ class BrachListScreen extends StatefulWidget {
 class _BrachListScreenState extends State<BrachListScreen> {
   List<dynamic> branchList = [];
   bool isLoading = false;
+  Color bgColor = Colors.yellow[600]!; // default
 
   @override
   void initState() {
@@ -25,6 +26,8 @@ class _BrachListScreenState extends State<BrachListScreen> {
   Future<void> _initNotificationDetails() async {
     final apiprovider = context.read<ApiProvider>();
     await apiprovider.getBranchList();
+    await apiprovider.getColors();
+
     setState(() {
       branchList = apiprovider.branchList;
       isLoading = false;
@@ -34,9 +37,18 @@ class _BrachListScreenState extends State<BrachListScreen> {
   @override
   Widget build(BuildContext context) {
     final apiprovider = context.read<ApiProvider>();
-
+    if (apiprovider.colorList.isNotEmpty) {
+      final colorHex = apiprovider.colorList.first["color"] ?? "#FFFF00"; // fallback
+      bgColor = Color(int.parse(colorHex.substring(1), radix: 16) + 0xFF000000);
+    }
     return Scaffold(
-      appBar: AppBar(title: const Text("અમારી શાખાઓ")),
+      //appBar: AppBar(title: const Text("અમારી શાખાઓ")),
+      appBar: AppBar(
+          backgroundColor: bgColor,
+          iconTheme:  IconThemeData(
+            color: Colors.white, // 👈 leading (back/menu) icon color
+          ),
+          title:  Text("અમારી શાખાઓ",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),)),
       body: RefreshIndicator(
         onRefresh: _initNotificationDetails,
         child: apiprovider.isLoading
@@ -49,10 +61,40 @@ class _BrachListScreenState extends State<BrachListScreen> {
           itemBuilder: (context, index) {
             final item = branchList[index];
 
-            return NotificationCard(
+            return Card(
+              color:bgColor,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12.r),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      item["status"]==true?"Active":"Not Active",
+                      style:  TextStyle(
+                        color: Colors.white,
+                        fontSize: 18.sp,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      item["address"] ?? "",
+                      style:  TextStyle(
+                        color: Colors.white,
+                        fontSize: 15.sp,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+           /* return NotificationCard(
               title: item["status"]==true?"Active":"Not Active",
               message: item["address"] ?? "",
-            );
+            );*/
 
           },
         ),
